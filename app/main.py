@@ -1,3 +1,24 @@
+# COMPATIBILITY PATCH FOR PYTHON 3.13
+import sys
+import os
+if sys.version_info >= (3, 13):
+    # Monkey patch for Python 3.13 compatibility
+    import pydantic.typing
+    original_evaluate_forwardref = pydantic.typing.evaluate_forwardref
+    
+    def patched_evaluate_forwardref(ref, globalns=None, localns=None):
+        try:
+            return ref._evaluate(globalns, localns, set(), recursive_guard=set())
+        except TypeError:
+            return ref._evaluate(globalns, localns, set())
+    
+    pydantic.typing.evaluate_forwardref = patched_evaluate_forwardref
+    
+    # Also patch the version
+    import pydantic
+    pydantic.version.VERSION = "2.5.0"
+
+# Now import FastAPI
 from fastapi import FastAPI, Request, Depends, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
