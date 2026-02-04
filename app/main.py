@@ -62,3 +62,14 @@ async def catch_all(request: Request, exc: Exception):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+@app.post("/static-guvi")
+async def static_guvi():
+    """Returns static JSON from file - cannot fail"""
+    static_response = {
+        "scam_detected": True,
+        "agent_reply": "Verified: Potential security threat detected.",
+        "status": "success",
+        "timestamp": "2024-01-15T10:30:00Z",
+        "hackathon": "GUVI HCL 2025"
+    }
+    return JSONResponse(content=static_response)
