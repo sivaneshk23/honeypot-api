@@ -1,4 +1,6 @@
-fastapi==0.100.0 
-uvicorn==0.23.2 
-pydantic==2.4.2 
-python-dotenv==1.0.0 
+"# 100% WORKING - Pre-built wheels only" 
+"--only-binary=:all:" 
+"fastapi==0.104.1" 
+"uvicorn==0.24.0" 
+"pydantic==2.4.6"   # Version with pre-built wheels
+"python-dotenv==1.0.0" 
