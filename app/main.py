@@ -102,10 +102,14 @@ async def honeypot_endpoint(
         # Update turn count
         conversation_memory.update_turns(request.conversation_id)
         
+        # Get text from incoming message (handle both dict and object)
+        if isinstance(request.incoming_message, dict):
+            text = request.incoming_message.get('text', '')
+        else:
+            text = request.incoming_message.text
+        
         # Detect scam
-        scam_detected, scam_confidence = scam_classifier.detect_scam(
-            request.incoming_message.text
-        )
+        scam_detected, scam_confidence = scam_classifier.detect_scam(text)
         
         # Generate agent response if scam detected
         agent_reply = ""
@@ -117,9 +121,7 @@ async def honeypot_endpoint(
         # Extract intelligence if scam detected
         extracted_raw = {}
         if scam_detected:
-            extracted_raw = intelligence_extractor.extract_all(
-                request.incoming_message.text
-            )
+            extracted_raw = intelligence_extractor.extract_all(text)
         
         # Prepare response
         response = HoneypotResponse(
@@ -146,12 +148,15 @@ async def honeypot_endpoint(
             timestamp=datetime.utcnow().isoformat() + "Z"
         )
         
-        logger.info(f"✅ Processed {request.conversation_id}: scam={scam_detected}")
+        print(f"✅ Processed {request.conversation_id}: scam={scam_detected}")
         
         return response
         
     except Exception as e:
-        logger.error(f"❌ Error: {e}")
+        print(f"❌ Error: {e}")
+        import traceback
+        traceback.print_exc()
+        
         # Return error response (still valid schema)
         return HoneypotResponse(
             scam_detected=False,
@@ -170,7 +175,6 @@ async def honeypot_endpoint(
             status="error",
             timestamp=datetime.utcnow().isoformat() + "Z"
         )
-
 if __name__ == "__main__":
     uvicorn.run(
         "app.main:app",
